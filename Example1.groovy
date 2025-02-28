@@ -4,6 +4,7 @@ import spock.lang.*
 
 // Test indeterminate involving 0,1,+INF: https://mathworld.wolfram.com/Indeterminate.html
 
+
 class BoundaryValuesTests extends Specification {
    def o = new Operations()
    
@@ -13,15 +14,29 @@ class BoundaryValuesTests extends Specification {
 
       where:
       a | b | expected
+      Float.MAX_VALUE | 1 | Float.POSITIVE_INFINITY
       Float.MAX_VALUE | Float.MAX_VALUE | Float.POSITIVE_INFINITY
-      Float.MIN_VALUE | Float.MAX_VALUE | 0.0
+      Float.MIN_VALUE | Float.MAX_VALUE | Float.MAX_VALUE
       -Float.MAX_VALUE | -Float.MAX_VALUE | Float.NEGATIVE_INFINITY
       -Float.MIN_VALUE | -Float.MIN_VALUE | 0.0
    }
 
+   def "Exponential"() {
+      expect:
+      o.Exp(a, b) == expected
+
+      where:
+      a | b | expected
+      Float.exp(1) | Float.POSITIVE_INFINITY | Float.POSITIVE_INFINITY
+      Float.exp(1) | Float.NEGATIVE_INFINITY | 0.0
+      Float.exp(1) | Float.NaN | Float.NaN                                
+      Float.exp(1) | 710 | Float.POSITIVE_INFINITY
+      Float.exp(1) | -745 | Float.NEGATIVE_INFINITY
+   }
+
    def "Multiplications"() {
       expect:
-      o.Sum(a, b) == expected
+      o.Mult(a, b) == expected
 
       where:
       a | b | expected
@@ -35,7 +50,7 @@ class BoundaryValuesTests extends Specification {
 class FloatCalculusTests extends Specification {
    def o = new Operations()
   
-   def "Test Total Order Comparisons with NaN"() {
+   def "Total Order Comparisons with NaN"() {
       expect:
       (a < b) == expected
 
@@ -61,7 +76,6 @@ class FloatCalculusTests extends Specification {
       a | b | expected
       Float.POSITIVE_INFINITY | Float.POSITIVE_INFINITY | 0
       Float.POSITIVE_INFINITY | Float.NEGATIVE_INFINITY | 1
-      Float.NEGATIVE_INFINITY | Float.POSITIVE_INFINITY | -1
       Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY | 0
       Float.MAX_VALUE | Float.POSITIVE_INFINITY | -1
       Float.NEGATIVE_INFINITY | -Float.MAX_VALUE | -1
@@ -193,9 +207,17 @@ class FloatCalculusTests extends Specification {
       Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY | Float.NaN
    }
 
-   def "Test sqrt -1"() {
+   def "Test Square Roots"() {
       expect:
-      Float.NaN==o.SquareRoot(-1.0)
+      o.SquareRoot(a) == expected
+
+      where:
+      a | expected
+      0.0| 0.0
+      -0.0 | -0.0
+      Float.POSITIVE_INFINITY | Float.POSITIVE_INFINITY
+      Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY
+      Float.NaN | Float.NaN
    }
 
    def "Test Exponential Inderterminates"() {
