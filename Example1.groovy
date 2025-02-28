@@ -4,23 +4,67 @@ import spock.lang.*
 
 // Test indeterminate involving 0,1,+INF: https://mathworld.wolfram.com/Indeterminate.html
 
+class BoundaryValuesTests extends Specification {
+   def o = new Operations()
+   
+   def "Additions"() {
+      expect:
+      o.Sum(a, b) == expected
+
+      where:
+      a | b | expected
+      Float.MAX_VALUE | Float.MAX_VALUE | Float.POSITIVE_INFINITY
+      Float.MIN_VALUE | Float.MAX_VALUE | 0.0
+      -Float.MAX_VALUE | -Float.MAX_VALUE | Float.NEGATIVE_INFINITY
+      -Float.MIN_VALUE | -Float.MIN_VALUE | 0.0
+   }
+
+   def "Multiplications"() {
+      expect:
+      o.Sum(a, b) == expected
+
+      where:
+      a | b | expected
+      Float.MAX_VALUE | 2 | Float.POSITIVE_INFINITY
+      Float.MIN_VALUE | 0.5 | 0.0
+      Float.MAX_VALUE | -2 | Float.NEGATIVE_INFINITY
+      Float.MIN_VALUE | -0.5 | -0.0
+   }
+}
+
 class FloatCalculusTests extends Specification {
    def o = new Operations()
   
-   def "Test Comparisons with Infinity and NaN"() {
+   def "Test Total Order Comparisons with NaN"() {
+      expect:
+      (a < b) == expected
+
+      where:
+      a | b | expected
+      Float.NaN | Float.NaN | false
+      Float.NaN | 0.0 | false
+      Float.NaN | -0.0 | true
+      Float.NaN | Float.POSITIVE_INFINITY | false
+      Float.NaN | Float.NEGATIVE_INFINITY | false
+      Float.NaN | Float.NaN | false
+      0.0 | Float.NaN | false
+      -0.0 | Float.NaN | false
+      Float.POSITIVE_INFINITY | Float.NaN | false
+      Float.NEGATIVE_INFINITY | Float.NaN | false
+   }
+
+   def "Test Comparisons with Infinity"() {
       expect:
       Float.compare(a, b) == expected
 
       where:
       a | b | expected
       Float.POSITIVE_INFINITY | Float.POSITIVE_INFINITY | 0
-      Float.POSITIVE_INFINITY | Float.NaN | -1
-      Float.NaN | Float.POSITIVE_INFINITY | -1
+      Float.POSITIVE_INFINITY | Float.NEGATIVE_INFINITY | 1
+      Float.NEGATIVE_INFINITY | Float.POSITIVE_INFINITY | -1
       Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY | 0
-      Float.NaN | 0.0 | -1
-      Float.NaN | Float.POSITIVE_INFINITY | -1
-      Float.NaN | Float.NEGATIVE_INFINITY | -1
-      Float.NaN | Float.NaN | -1
+      Float.MAX_VALUE | Float.POSITIVE_INFINITY | -1
+      Float.NEGATIVE_INFINITY | -Float.MAX_VALUE | -1
    }
 
    def "Test Comparisons with Zeros"() {
@@ -33,10 +77,8 @@ class FloatCalculusTests extends Specification {
       -0.0 | 0.0 | -1
       0.0 | -0.0 | 1
       -0.0 | -0.0 | 0
-      Float.NaN | 0.0 | false
-      -Float.NaN | 0.0 | true
-      0.0 | -Float.NaN | false
-      0.0 | Float.NaN | true
+      -Float.MIN_VALUE | -0.0 | -1
+      0.0 | Float.MIN_VALUE | -1
    }
 
    def "Test Equality with NaN"() {
@@ -77,31 +119,31 @@ class FloatCalculusTests extends Specification {
       Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY
    }
 
-   def "Test Divisions 0/0"() {
+   def "Test Indeterminate Form 0/0"() {
       expect:
       Float.NaN==o.Div(0.0,0.0)
    }
 
-   def "Test 0*INF"() {
+   def "Test Indeterminate Form 0*INF"() {
       expect:
       Float.NaN==o.Mult(0.0,Float.POSITIVE_INFINITY)
    }    
 
-   def "Test INF/INF"() {
+   def "Test Indeterminate Form INF/INF"() {
       expect:
       Float.NaN==o.Div(Float.POSITIVE_INFINITY,Float.POSITIVE_INFINITY)
-   }
+   }   
 
-   
+   def "Test Division with zero"() {
+      expect:
+      o.Div(a, b) == expected
 
-   def "Test +INF"() {
-      expect:
-      Float.POSITIVE_INFINITY==o.Div(1.0,0.0)
-   }
-  
-   def "Test -INF"() {
-      expect:
-      Float.NEGATIVE_INFINITY==o.Div(-1.0,0.0)
+      where:
+      a | b | expected
+      1.0 | 0.0 | Float.POSITIVE_INFINITY
+      1.0 | -0.0 | Float.NEGATIVE_INFINITY
+      -1.0 | 0.0 | Float.NEGATIVE_INFINITY
+      -1.0 | -0.0 | Float.POSITIVE_INFINITY
    }
 
    def "Test -0,0 - False Negative"() {
@@ -167,6 +209,7 @@ class FloatCalculusTests extends Specification {
       0 | 0 | 1                                
       Float.POSITIVE_INFINITY | 0 | 1          
    }
+
 }
 
 
