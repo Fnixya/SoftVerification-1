@@ -68,7 +68,7 @@ class ArithmeticTests extends Specification {
       Float.NEGATIVE_INFINITY | Float.NEGATIVE_INFINITY | Float.POSITIVE_INFINITY
    }
 
-   def "0/b Divisions"() {
+   def "0/b Divisions with 0.0 and 0.0f"() {
       expect:
       Float.compare(o.Div(a, b), 0.0) == expected
 
@@ -261,6 +261,19 @@ class IndeterminateTests extends Specification {
       o.Div(0.0,0.0) == Float.NaN 
    }
 
+   def "Division with zero"() {
+      expect:
+      o.Div(a, b) == expected
+
+      where:
+      a | b | expected
+      1.0f | 0.0f | Float.POSITIVE_INFINITY
+      1.0f | -0.0f | Float.NEGATIVE_INFINITY
+      -1.0f | 0.0f | Float.NEGATIVE_INFINITY
+      -1.0f | -0.0f | Float.POSITIVE_INFINITY
+   }
+
+
    def "INF/INF Divisions"() {
       expect:
       o.Div(a, b) == expected
@@ -285,7 +298,7 @@ class IndeterminateTests extends Specification {
 
    def "INF-INF"() {
       expect:
-      o.Sub(a, b) == expected
+      o.Sum(a, b) == expected
 
       where:
       a | b | expected
@@ -333,31 +346,7 @@ class RootTests extends Specification {
    }
 }
 
-class FloatCalculusTests extends Specification {
-   def o = new Operations()
-  
-   def "Test Division with zero"() {
-      expect:
-      o.Div(a, b) == expected
-
-      where:
-      a | b | expected
-      1.0 | 0.0 | Float.POSITIVE_INFINITY
-      1.0 | -0.0 | Float.NEGATIVE_INFINITY
-      -1.0 | 0.0 | Float.NEGATIVE_INFINITY
-      -1.0 | -0.0 | Float.POSITIVE_INFINITY
-   }
-
-   def "Test -0,0 - False Negative"() {
-      expect:
-      // new Float (-0.0) == o.Div(0.0,-1.0)
-      o.Div(0.0,-1.0) == -0.0
-   }
-}
-
-
 // SUT: Operations
-
 class Operations {
 
    float Div (float a=0.0, float b=0.0) {
