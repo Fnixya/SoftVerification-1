@@ -70,7 +70,7 @@ class ArithmeticTests extends Specification {
 
    def "0/b Divisions with 0.0 and 0.0f"() {
       expect:
-      Float.compare(o.Div(a, b), 0.0) == expected
+      Float.compare(o.Div(a, b), 0.0f) == expected
 
       where:
       a | b | expected
@@ -181,7 +181,7 @@ class ComparisonTests extends Specification {
 
    def "NaN Greater than"() {
       expect:
-      (a < b) == expected
+      (a > b) == expected
 
       where:
       a | b | expected
@@ -228,7 +228,7 @@ class ComparisonTests extends Specification {
       0.0f | Float.MIN_VALUE | -1
    }
 
-   def "Equalities with NaN"() {
+   def "Equalities with Infinities"() {
       expect:
       (a == b) == expected
 
@@ -328,8 +328,8 @@ class RootTests extends Specification {
 
       where:
       a | expected
-      0.0| 0.0
-      1.0 | 1.0
+      0.0f | 0.0f
+      1.0f | 1.0f
       Float.POSITIVE_INFINITY | Float.POSITIVE_INFINITY
       Float.NaN | Float.NaN
    }
@@ -340,8 +340,8 @@ class RootTests extends Specification {
 
       where:
       a | expected
-      -0.0 | -0.0          // False Positive
-      -1.0 | Float.NaN
+      -0.0f | -0.0f          
+      -1.0f | Float.NaN
       -Float.POSITIVE_INFINITY | Float.NaN
    }
 }
